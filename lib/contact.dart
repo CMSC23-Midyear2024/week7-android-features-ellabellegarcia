@@ -3,11 +3,13 @@ import 'package:flutter_contacts/flutter_contacts.dart';
 
 class ContactPage extends StatelessWidget {
   final Contact contact;
-  const ContactPage(this.contact, {super.key});
+  ContactPage(this.contact, {super.key});
 
   @override
   Widget build(BuildContext context) => Scaffold(
-      appBar: AppBar(title: Text(contact.displayName)),
+      appBar: AppBar(
+        title: Text(contact.displayName),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -29,6 +31,16 @@ class ContactPage extends StatelessWidget {
             child: Text(
                 'Email address: ${contact.emails.isNotEmpty ? contact.emails.first.address : '(none)'}'),
           ),
+          Center(
+            child: ElevatedButton(
+              onPressed: () {
+                FlutterContacts.deleteContact(contact).then((_) {
+                  Navigator.pop(context);
+                });
+              },
+              child: const Text('Delete Contact'),
+            ),
+          )
         ]),
       ));
 }

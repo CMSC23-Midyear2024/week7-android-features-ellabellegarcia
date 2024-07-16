@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'contact.dart';
+import 'form.dart';
 
 void main() => runApp(const MyApp());
 
@@ -59,7 +60,20 @@ class _ContactListState extends State<ContactList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: const Text('My Contacts')), body: _body());
+      appBar: AppBar(title: const Text('My Contacts')),
+      body: _body(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // navigate to the form page (page for saving/adding a contact)
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => FormPage()),
+          ).then((_) =>
+              _fetchContacts()); // refresh contacts list after FormPage is popped;
+        },
+        child: const Icon(Icons.add),
+      ),
+    );
   }
 
   Widget _body() {
@@ -73,11 +87,19 @@ class _ContactListState extends State<ContactList> {
         itemCount: _contacts!.length,
         itemBuilder: (context, i) => ListTile(
             title: Text(_contacts![i].displayName),
-            onTap: () {
-              FlutterContacts.getContact(_contacts![i].id).then((contact) {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (_) => ContactPage(contact!)));
-              });
+            onTap: () async {
+              final fullContact =
+                  await FlutterContacts.getContact(_contacts![i].id);
+              if (context.mounted) {
+                // navigate to the contact page (page for viewing or deleting a contact)
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ContactPage(fullContact!),
+                  ),
+                ).then((_) =>
+                    _fetchContacts()); // refresh contacts list after ContactPage is popped (after deleting a contact);
+              }
             }));
   }
 }
